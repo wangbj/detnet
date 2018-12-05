@@ -44,7 +44,8 @@ fn detnet_main() {
     fs::set_permissions(unp, perms).expect(&format!("change {} permission to 0660", unp));
 
     let uid = nix::unistd::Uid::from_raw(0);
-    unsafe { unistd::chown(unp, nix::unistd::Uid::from_raw(0), nix::unistd::Gid::from_raw(dettrace_group as gid_t)); }
+    let gid = nix::unistd::Gid::from_raw(dettrace_group as gid_t);
+    nix::unistd::chown(unp, Some(uid), Some(gid)).expect(&format!("failed to chown {}", unp));
 
     for stream in listener.incoming() {
         match stream {
